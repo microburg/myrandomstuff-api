@@ -5,11 +5,11 @@ from middleware.example_middleware import log_request_middleware
 
 app = Flask(__name__)
 
-# Register middleware
+# middleware
 log_request_middleware(app)
-auth_middleware(app)  # Add this line to enable authentication
+auth_middleware(app) 
 
-# Register blueprint for routes
+# routes
 app.register_blueprint(myrandomstuff_bp)
 
 if __name__ == '__main__':
