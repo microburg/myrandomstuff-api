@@ -1,6 +1,11 @@
 from flask import request, jsonify
 
-def log_request_middleware(app):
+VALID_TOKEN = "guesswhat"
+
+def auth_middleware(app):
     @app.before_request
-    def log_request_info():
-        print(f"Request method: {request.method}, URL: {request.url}")
+    def authenticate():
+        if request.endpoint not in ['myrandomstuff_bp.get_items', 'myrandomstuff_bp.get_item']:
+            token = request.headers.get('Authorization')
+            if not token or token != f"Bearer {VALID_TOKEN}":
+                return jsonify({'error': 'Unauthorized'}), 401
