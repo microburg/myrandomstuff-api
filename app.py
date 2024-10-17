@@ -1,48 +1,14 @@
-from flask import Flask, jsonify, request
+from flask import Flask
+from routes.myrandomstuff_routes import myrandomstuff_bp
+from middleware.example_middleware import log_request_middleware
 
 app = Flask(__name__)
 
-myrandomstuff = []
-task_id_counter = 1
+# Register middleware
+log_request_middleware(app)
 
-@app.route('/myrandomstuff', methods=['GET'])
-def get_items():
-    return jsonify(myrandomstuff)
-
-@app.route('/myrandomstuff/<int:id>', methods=['GET'])
-def get_item(id):
-    item = next((item for item in myrandomstuff if item['id'] == id), None)
-    if item is None:
-        return jsonify({'error': 'Item not found'}), 404
-    return jsonify(item)
-
-@app.route('/myrandomstuff', methods=['POST'])
-def create_item():
-    global task_id_counter
-    new_item = {
-        'id': task_id_counter,
-        'title': request.json.get('title', ''),
-        'completed': False
-    }
-    myrandomstuff.append(new_item)
-    task_id_counter += 1
-    return jsonify(new_item), 201
-
-@app.route('/myrandomstuff/<int:id>', methods=['PUT'])
-def update_item(id):
-    item = next((item for item in myrandomstuff if item['id'] == id), None)
-    if item is None:
-        return jsonify({'error': 'Item not found'}), 404
-    
-    item['title'] = request.json.get('title', item['title'])
-    item['completed'] = request.json.get('completed', item['completed'])
-    return jsonify(item)
-
-@app.route('/myrandomstuff/<int:id>', methods=['DELETE'])
-def delete_item(id):
-    global myrandomstuff
-    myrandomstuff = [item for item in myrandomstuff if item['id'] != id]
-    return jsonify({'message': 'Item deleted'})
+# Register blueprint for routes
+app.register_blueprint(myrandomstuff_bp)
 
 if __name__ == '__main__':
     app.run(debug=True)
